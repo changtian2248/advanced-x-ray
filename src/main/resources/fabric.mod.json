@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "id": "advanced-x-ray",
+  "version": "${version}",
+
+  "name": "Advanced X-Ray",
+  "description": "A client-side X-Ray block highlighter. Selected blocks are drawn with colored outline boxes which are visible through other blocks. Sodium compatible.",
+  "authors": [
+    "AdvancedXRay"
+  ],
+  "contact": {
+    "homepage": "https://example.com/advanced-x-ray",
+    "sources": "https://github.com/example/advanced-x-ray",
+    "issues": "https://github.com/example/advanced-x-ray/issues"
+  },
+
+  "license": "MIT",
+  "icon": "assets/advanced-x-ray/icon.png",
+
+  "environment": "client",
+
+  "accessWidener": "advanced-x-ray.accesswidener",
+
+  "entrypoints": {
+    "client": [
+      "com.advancedxray.client.AdvancedXRayClient"
+    ]
+  },
+
+  "mixins": [
+    {
+      "config": "advanced-x-ray.mixins.json",
+      "environment": "client"
+    }
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+
+  "suggests": {
+    "sodium": "*",
+    "modmenu": "*"
+  }
+}

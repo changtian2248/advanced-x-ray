@@ -1,0 +1,32 @@
+accessWidener	v2	named
+
+# ============================================================================
+#  Advanced X-Ray - Access Widener
+# ----------------------------------------------------------------------------
+#  为什么需要 Access Widener？（这不是 Mixin，不会与 Sodium 冲突）
+#
+#  透视边框要达到「隔着方块也能看见」，必须在【真正执行 GL 绘制的那一瞬间】
+#  让深度测试失效。而原版 RenderLayer.LINES 自带 LEQUAL_DEPTH_TEST 阶段，
+#  它的 begin() 会调用 RenderSystem.enableDepthTest()：
+#      RenderPhase$DepthTest.method_23548: if (depthFunc != 519) { enableDepthTest(); depthFunc(515); }
+#  也就是说，用 RenderLayer.getLines() 时我们自己 disableDepthTest() 会被它覆盖掉。
+#
+#  原版 RenderPhase.ALWAYS_DEPTH_TEST（depthFunc == 519）的两个 lambda 都被
+#  `if (depthFunc != 519)` 拦住，begin/end 全是**空操作**，所以它不会干扰外部
+#  设置的深度状态 —— 这正是我们需要的「不碰深度状态」的图层。
+#  （原版自己也在用这个套路：RenderLayer.getOutline() 实体发光描边同样是 ALWAYS_DEPTH_TEST）
+#
+#  但 RenderLayer.of(...) 是包私有方法、RenderPhase 的阶段常量是 protected，
+#  跨包无法调用，所以这里用 Fabric 官方提供的 Access Widener 机制放开访问权限。
+#  Access Widener 只放宽「访问修饰符」，不修改任何方法体、不注入任何代码，
+#  与 Sodium 完全无冲突，比 Mixin 安全得多。
+# ============================================================================
+
+# 允许调用 RenderLayer.of(String, VertexFormat, DrawMode, int, MultiPhaseParameters) 创建自定义图层
+accessible	method	net/minecraft/client/render/RenderLayer	of	(Ljava/lang/String;Lnet/minecraft/client/render/VertexFormat;Lnet/minecraft/client/render/VertexFormat$DrawMode;ILnet/minecraft/client/render/RenderLayer$MultiPhaseParameters;)Lnet/minecraft/client/render/RenderLayer$MultiPhase;
+accessible	class	net/minecraft/client/render/RenderLayer$MultiPhase
+
+# RenderPhase 的渲染阶段常量（protected → 放开为 public）
+accessible	field	net/minecraft/client/render/RenderPhase	LINES_PROGRAM	Lnet/minecraft/client/render/RenderPhase$ShaderProgram;
+accessible	field	net/minecraft/client/render/RenderPhase	ALWAYS_DEPTH_TEST	Lnet/minecraft/client/render/RenderPhase$DepthTest;
+accessible	field	net/minecraft/client/render/RenderPhase	COLOR_MASK	Lnet/minecraft/client/render/RenderPhase$WriteMaskState;
